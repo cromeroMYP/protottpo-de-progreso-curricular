@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Cierre Anticipado - Currículum Oficial (5° a 8° Básico)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            .print-shadow { box-shadow: none !important; border: 1px solid #e2e8f0; }
+        }
+        /* Style adjustments specifically for PDF generation to expand scrollable tables */
+        .pdf-exporting .max-h-\[500px\] {
+            max-height: none !important;
+            overflow-y: visible !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white text-indigo-700 p-2.5 rounded-xl shadow-inner font-bold text-xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Gestor de Cierre Anticipado (5° a 8° Básico)</h1>
+                    <p class="text-xs text-indigo-200">Plataforma Interactiva Oficial de Progreso Curricular</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="app.resetData()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-sm font-medium rounded-lg transition text-indigo-100 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Reiniciar Datos
+                </button>
+                <button onclick="app.downloadPDF()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-semibold rounded-lg transition text-white shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i> Descargar PDF Oficial
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Sidebar: Student & Config Panel (No Print) -->
+        <section class="lg:col-span-4 space-y-6 no-print">
+            <!-- Student Information Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2 border-b pb-3">
+                    <i class="fa-solid fa-user-graduate text-indigo-600"></i> Datos del Estudiante
+                </h2>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre Completo del Estudiante</label>
+                    <input type="text" id="studentName" value="Martín Alejandro Soto Rojas" oninput="app.updateStudentInfo()" 
+                           class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Curso / Grado</label>
+                        <select id="studentCourse" onchange="app.changeCourse()" 
+                                class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                            <option value="5° Básico">5° Básico</option>
+                            <option value="6° Básico">6° Básico</option>
+                            <option value="7° Básico">7° Básico</option>
+                            <option value="8° Básico" selected>8° Básico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Asignatura</label>
+                        <select id="subjectSelect" onchange="app.changeSubject()" 
+                                class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                            <option value="Matemáticas">Matemáticas</option>
+                            <option value="Lenguaje y Literatura">Lenguaje y Literatura</option>
+                            <option value="Ciencias Naturales">Ciencias Naturales</option>
+                            <option value="Historia, Geografía y Cs. Sociales">Historia y Geografía</option>
+                            <option value="Inglés">Inglés</option>
+                            <option value="Tecnología">Tecnología</option>
+                            <option value="Música">Música</option>
+                            <option value="Educación Física y Salud">Educación Física y Salud</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Motivo del Cierre Anticipado</label>
+                    <input type="text" id="closureReason" value="Cambio de domicilio familiar a otra región" oninput="app.updateStudentInfo()" 
+                           class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha de Emisión</label>
+                    <input type="date" id="reportDate" value="2026-10-30" onchange="app.updateStudentInfo()" 
+                           class="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Instruction Box for Teacher -->
+            <div class="bg-indigo-50 rounded-2xl border border-indigo-100 p-4 text-xs text-indigo-900 space-y-2">
+                <p class="font-bold flex items-center gap-1.5 text-indigo-700 text-sm">
+                    <i class="fa-solid fa-circle-info"></i> Currículum Escolar Completo
+                </p>
+                <p>Se han integrado el total de Objetivos de Aprendizaje (OA) oficiales vigentes según <a href="https://www.curriculumnacional.cl/" target="_blank" class="underline font-semibold">curriculumnacional.cl</a>. Marque o desmarque las casillas según el progreso del estudiante.</p>
+            </div>
+
+            <!-- Quick Charts Overview Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2 border-b pb-3">
+                    <i class="fa-solid fa-chart-pie text-indigo-600"></i> Resumen Gráfico Global
+                </h2>
+                <div class="relative h-56 w-full flex justify-center items-center">
+                    <canvas id="overviewChart"></canvas>
+                </div>
+                <p class="text-xs text-slate-500 text-center">Proporción general de avance curricular oficial.</p>
+            </div>
+        </section>
+
+        <!-- Right / Main Content Area: The Printable Report -->
+        <section class="lg:col-span-8 space-y-6">
+            
+            <div id="pdfContent" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-8 print-shadow">
+                
+                <!-- Report Header / Letterhead -->
+                <div class="border-b pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 text-indigo-700 font-bold text-lg mb-1">
+                            <i class="fa-solid fa-school"></i> Sistema Curricular Institucional
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">INFORME DE PROGRESO CURRICULAR OFICIAL</h2>
+                        <p class="text-sm font-medium text-slate-500">Cierre Anticipado del Año Escolar - Notificación a Apoderado(a)</p>
+                    </div>
+                    <div class="text-left sm:text-right bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <p class="text-xs text-slate-500 font-medium">Fecha de Emisión:</p>
+                        <p class="text-sm font-bold text-slate-800" id="displayDate">30 de Octubre, 2026</p>
+                    </div>
+                </div>
+
+                <!-- Student & Subject Details Banner -->
+                <div class="bg-gradient-to-r from-indigo-50 to-slate-50 rounded-xl p-4 border border-indigo-100 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-xs text-indigo-700 font-semibold uppercase tracking-wider block">Estudiante:</span>
+                        <span class="font-bold text-slate-800 text-base" id="displayName">Martín Alejandro Soto Rojas</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-indigo-700 font-semibold uppercase tracking-wider block">Curso / Grado:</span>
+                        <span class="font-bold text-slate-800 text-base" id="displayCourse">8° Básico</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-indigo-700 font-semibold uppercase tracking-wider block">Asignatura:</span>
+                        <span class="font-bold text-slate-800 text-base" id="displaySubject">Matemáticas</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-indigo-700 font-semibold uppercase tracking-wider block">Motivo de Cierre:</span>
+                        <span class="font-medium text-slate-700 text-sm" id="displayReason">Cambio de domicilio familiar a otra región</span>
+                    </div>
+                </div>
+
+                <!-- SECTION 1: OBJETIVOS DE APRENDIZAJE (OA) -->
+                <div class="space-y-3">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 bg-indigo-600 rounded-full"></span> 1. Objetivos de Aprendizaje (OA) Anuales (Completos)
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full" id="oaVistoBadge">Logrado: 0%</span>
+                            <span class="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full" id="oaPendienteBadge">Pendiente: 0%</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500">Listado oficial completo según curriculumnacional.cl. Marque aquellos que el estudiante logró evaluar.</p>
+                    
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-[500px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead class="sticky top-0 bg-slate-100 z-10">
+                                <tr class="text-slate-700 font-bold border-b border-slate-200">
+                                    <th class="p-3 w-16 text-center no-print">Eval.</th>
+                                    <th class="p-3 w-24">Código</th>
+                                    <th class="p-3">Descripción Oficial del OA (Bases Curriculares)</th>
+                                    <th class="p-3 w-36">Estado Actual</th>
+                                </tr>
+                            </thead>
+                            <tbody id="oaTableBody" class="divide-y divide-slate-100">
+                                <!-- Dynamically populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: HABILIDADES -->
+                <div class="space-y-3">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 bg-indigo-600 rounded-full"></span> 2. Habilidades de la Asignatura (Bases Curriculares)
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full" id="skillsVistoBadge">Desarrolladas: 0%</span>
+                            <span class="text-xs font-semibold px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full" id="skillsPendienteBadge">Pendientes: 0%</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500">Habilidades cognitivas y disciplinares de los programas de estudio ministeriales.</p>
+                    
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                                    <th class="p-3 w-16 text-center no-print">Trabaj.</th>
+                                    <th class="p-3 w-36">Habilidad</th>
+                                    <th class="p-3">Descripción Oficial</th>
+                                    <th class="p-3 w-36">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="skillsTableBody" class="divide-y divide-slate-100">
+                                <!-- Dynamically populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: RECOMENDACIONES PEDAGÓGICAS Y ORIENTACIONES PARA APODERADOS -->
+                <div class="space-y-3 bg-amber-50/60 border border-amber-200 rounded-2xl p-5">
+                    <div class="flex items-center gap-2 text-amber-900 font-bold text-base border-b border-amber-200 pb-3">
+                        <i class="fa-solid fa-lightbulb text-amber-600"></i> 3. Recomendaciones Pedagógicas y Orientaciones para Apoderados
+                    </div>
+                    <p class="text-xs text-amber-800">
+                        Orientaciones específicas para apoyar en el hogar aquellos Objetivos de Aprendizaje (OA) y Habilidades que quedaron pendientes debido al cierre anticipado del año escolar.
+                    </p>
+                    <div id="pedagogicalRecommendations" class="space-y-3 pt-1">
+                        <!-- Dynamically populated recommendations -->
+                    </div>
+                </div>
+
+                <!-- GENERAL SUMMARY BOX -->
+                <div class="bg-slate-900 text-white rounded-2xl p-6 space-y-4 shadow-md">
+                    <h4 class="font-bold text-base flex items-center gap-2 text-indigo-300">
+                        <i class="fa-solid fa-chart-line"></i> Panorama General de Cierre Anticipado
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                            <p class="text-xs text-slate-400 font-medium">Progreso Curricular Logrado (OA + Habilidades)</p>
+                            <p class="text-2xl font-extrabold text-emerald-400 mt-1" id="summaryViewedPercent">0%</p>
+                            <p class="text-[11px] text-slate-400 mt-1">Porcentaje de avance oficial</p>
+                        </div>
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                            <p class="text-xs text-slate-400 font-medium">Contenido Curricular Pendiente</p>
+                            <p class="text-2xl font-extrabold text-amber-400 mt-1" id="summaryPendingPercent">0%</p>
+                            <p class="text-[11px] text-slate-400 mt-1">Por cubrir en nivelación futura</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 italic text-center pt-2 border-t border-slate-800">
+                        * Este informe certifica el estado académico según las Bases Curriculares oficiales a la fecha de cierre anticipado.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 text-center py-4 text-xs mt-auto no-print">
+        <p>Sistema de Gestión Escolar - Módulo Oficial de Cierre Anticipado &copy; 2026</p>
+    </footer>
+
+    <script>
+        // Base de datos exhaustiva oficial completa (curriculumnacional.cl) para 5° a 8° Básico
+        const masterCurriculumData = {
+            "5° Básico": {
+                "Matemáticas": {
+                    oa: [
+                        { code: "OA 01", desc: "Representar y describir números naturales de hasta más de 6 dígitos y menores que 1 000 millones: valor posicional, composición y descomposición, aproximación, recta numérica.", evaluated: true },
+                        { code: "OA 02", desc: "Aplicar estrategias de cálculo mental para la multiplicación: anexar ceros, doblar y dividir por 2, distributividad con adición.", evaluated: true },
+                        { code: "OA 03", desc: "Demostrar que comprenden la multiplicación de números naturales de 2 dígitos por 2 dígitos.", evaluated: true },
+                        { code: "OA 04", desc: "Demostrar que comprenden la división con dividendos de tres dígitos y divisores de un dígito.", evaluated: true },
+                        { code: "OA 05", desc: "Realizar cálculos que involucren las cuatro operaciones, aplicando reglas de paréntesis y orden de operaciones.", evaluated: false },
+                        { code: "OA 06", desc: "Resolver problemas rutinarios y no rutinarios que involucren las cuatro operaciones y combinación de ellas.", evaluated: false },
+                        { code: "OA 07", desc: "Identificar y describir fracciones equivalentes, simplificando y amplificando de forma concreta, pictórica y simbólica.", evaluated: false },
+                        { code: "OA 08", desc: "Comparar y ordenar fracciones propias, impropias, mixtas y decimales hasta el milésimo.", evaluated: false },
+                        { code: "OA 09", desc: "Resolver adiciones y sustracciones de fracciones propias e impropias con igual o distinto denominador.", evaluated: false },
+                        { code: "OA 10", desc: "Determinar el valor posicional de los dígitos hasta el milésimo y representarlos en forma fraccionaria y decimal.", evaluated: false },
+                        { code: "OA 11", desc: "Comparar y ordenar decimales hasta el milésimo usando la recta numérica y valor posicional.", evaluated: false },
+                        { code: "OA 12", desc: "Resolver adiciones y sustracciones de decimales hasta el milésimo.", evaluated: false },
+                        { code: "OA 13", desc: "Resolver problemas rutinarios y no rutinarios, aplicando adiciones y sustracciones de fracciones o decimales.", evaluated: false },
+                        { code: "OA 14", desc: "Descubrir alguna regla que explique una sucesión dada y formular conjeturas sobre reglas no explícitas.", evaluated: false },
+                        { code: "OA 15", desc: "Resolver ecuaciones e inecuaciones de un paso que involucren adiciones y sustracciones en el ámbito del 0 al 100.", evaluated: false },
+                        { code: "OA 16", desc: "Identificar y describir puntos en el plano cartesiano, usando pares ordenados de números naturales.", evaluated: false },
+                        { code: "OA 17", desc: "Describir movimientos de figuras en el plano (traslación, reflexión y rotación) de forma manual y digital.", evaluated: false },
+                        { code: "OA 18", desc: "Demostrar que comprenden el concepto de congruencia de figuras geométricas.", evaluated: false },
+                        { code: "OA 19", desc: "Medir longitudes con unidades estandarizadas (km, m, cm, mm) y realizar transformaciones entre unidades.", evaluated: false },
+                        { code: "OA 20", desc: "Demostrar que comprenden el concepto de área de una superficie en cuadrículas y figuras regulares.", evaluated: false },
+                        { code: "OA 21", desc: "Diseñar y construir diferentes rectángulos dada un área o un perímetro y calcular su medida.", evaluated: false },
+                        { code: "OA 22", desc: "Calcular áreas de triángulos, paralelogramos y trapecios, y estimar áreas de figuras irregulares.", evaluated: false },
+                        { code: "OA 23", desc: "Identificar y dibujar ángulos usando transportador, y clasificar ángulos según su amplitud.", evaluated: false },
+                        { code: "OA 24", desc: "Construir ángulos agudos, obtusos, rectos, extendidos y completos con regla y transportador.", evaluated: false },
+                        { code: "OA 25", desc: "Analizar y describir características de cuerpos geométricos (prismas rectos, pirámides, cilindros, conos, esferas).", evaluated: false },
+                        { code: "OA 26", desc: "Leer, interpretar y completar tablas, gráficos de barra simple y gráficos de línea y comunicar conclusiones.", evaluated: false },
+                        { code: "OA 27", desc: "Realizar experimentos aleatorios cotidianos, registrar resultados y comparar frecuencias empíricas y teóricas.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Resolver problemas", desc: "Aplicar estrategias diversas (ensayo y error, descomponer el problema, usar esquemas) en problemas rutinarios y no rutinarios.", developed: true },
+                        { name: "Argumentar y comunicar", desc: "Formular conjeturas, evaluar afirmaciones y justificar pasos en el desarrollo de procedimientos matemáticos.", developed: true },
+                        { name: "Modelar", desc: "Aplicar y evaluar modelos matemáticos basados en gráficos, operaciones aritméticas y geometría.", developed: false },
+                        { name: "Representar", desc: "Plasmar conceptos numéricos y espaciales en diagramas, tablas, gráficos y símbolos algebraicos breves.", developed: false }
+                    ]
+                },
+                "Lenguaje y Literatura": {
+                    oa: [
+                        { code: "OA 01", desc: "Leer de manera fluida textos variados adecuados a su edad: narraciones, poemas, textos informativos y cartas.", evaluated: true },
+                        { code: "OA 02", desc: "Comprender textos aplicando estrategias de lectura; por ejemplo, relacionar la información con sus experiencias.", evaluated: true },
+                        { code: "OA 03", desc: "Analizar aspectos relevantes de narraciones leídas para profundizar su comprensión: ambiente, conflictos y personajes.", evaluated: true },
+                        { code: "OA 04", desc: "Analizar poemas leídos para enriquecer su comprensión, identificando elementos sonoros, lenguaje figurado y rima.", evaluated: true },
+                        { code: "OA 05", desc: "Analizar obras dramáticas leídas o escuchadas, distinguiendo actos, escenas, diálogos y acotaciones.", evaluated: false },
+                        { code: "OA 06", desc: "Leer independientemente y comprender textos no literarios (cartas, biografías, noticias) para formarse opinión.", evaluated: false },
+                        { code: "OA 07", desc: "Evaluar información presente en textos no literarios, distinguiendo hechos de opiniones.", evaluated: false },
+                        { code: "OA 08", desc: "Sintetizar y registrar la información principal de textos leídos.", evaluated: false },
+                        { code: "OA 09", desc: "Desarrollar el gusto por la lectura, leyendo habitualmente diversos textos literarios y no literarios.", evaluated: false },
+                        { code: "OA 10", desc: "Aplicar estrategias de comprensión lectora según el propósito de lectura.", evaluated: false },
+                        { code: "OA 11", desc: "Leer y familiarizarse con un amplio repertorio de literatura para aumentar su conocimiento del mundo.", evaluated: false },
+                        { code: "OA 12", desc: "Aplicar estrategias de vocabulario contextual para deducir el significado de palabras desconocidas.", evaluated: false },
+                        { code: "OA 13", desc: "Escribir frecuentemente para expresar opiniones fundamentadas sobre textos y temas de su interés.", evaluated: false },
+                        { code: "OA 14", desc: "Escribir cartas, diarios de vida, cuentos, poemas u otros textos para desarrollar su imaginación.", evaluated: false },
+                        { code: "OA 15", desc: "Escribir artículos informativos para comunicar sobre un tema: organizar en introducción, desarrollo y conclusión.", evaluated: false },
+                        { code: "OA 16", desc: "Planificar la escritura: organizar ideas principales, estructurar párrafos y revisar la ortografía.", evaluated: false },
+                        { code: "OA 17", desc: "Escribir, revisar y editar sus textos para satisfacer un propósito y comunicar ideas con claridad.", evaluated: false },
+                        { code: "OA 18", desc: "Utilizar herramientas de procesamiento de texto y recursos digitales para redactar, editar y publicar.", evaluated: false },
+                        { code: "OA 19", desc: "Comprender la función de los pronombres, conectores temporales y causales en textos escritos.", evaluated: false },
+                        { code: "OA 20", desc: "Aplicar normas ortográficas acentuales, literales y puntuales en todos sus escritos.", evaluated: false },
+                        { code: "OA 21", desc: "Participar activamente en conversaciones grupales y exposiciones orales, manteniendo el foco del tema.", evaluated: false },
+                        { code: "OA 22", desc: "Expresarse de manera clara y efectiva en exposiciones orales sobre temas de investigación.", evaluated: false },
+                        { code: "OA 23", desc: "Comprender textos orales (explicaciones, instrucciones, relatos) para obtener información y construir sentido.", evaluated: false },
+                        { code: "OA 24", desc: "Disfrutar de obras teatrales, películas o recitales poéticos, comentando sus impresiones.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Comprensión Lectora", desc: "Extraer información explícita e implícita, deduciendo causas y consecuencias de acciones relatadas.", developed: true },
+                        { name: "Producción Escrita", desc: "Redactar escritos coherentes y cohesionados aplicando reglas gramaticales y ortografía correcta.", developed: true },
+                        { name: "Investigación y Comunicación", desc: "Buscar información bibliográfica y digital, organizándola en exposiciones orales claras.", developed: false }
+                    ]
+                },
+                "Ciencias Naturales": {
+                    oa: [
+                        { code: "OA 01", desc: "Reconocer que la fotosíntesis de las plantas produce materia orgánica y oxígeno, siendo fundamental para la vida.", evaluated: true },
+                        { code: "OA 02", desc: "Representar, mediante modelos, la transferencia de energía y materia en cadenas y redes alimentarias.", evaluated: true },
+                        { code: "OA 03", desc: "Analizar los efectos de la actividad humana (contaminación, pesca, deforestación) sobre los ecosistemas de Chile.", evaluated: true },
+                        { code: "OA 04", desc: "Analizar y comunicar la importancia de las reservas naturales y parques nacionales en la biodiversidad.", evaluated: false },
+                        { code: "OA 05", desc: "Describir la distribución del agua dulce y salada en la Tierra y la importancia de su conservación.", evaluated: false },
+                        { code: "OA 06", desc: "Investigar experimentalmente las propiedades de la luz: propagación rectilínea, reflexión y refracción.", evaluated: false },
+                        { code: "OA 07", desc: "Investigar experimentalmente las características del sonido: intensidad, tono, timbre y propagación en medios.", evaluated: false },
+                        { code: "OA 08", desc: "Investigar experimentalmente la presión atmosférica y sus aplicaciones prácticas cotidianas.", evaluated: false },
+                        { code: "OA 09", desc: "Planificar y conducir investigaciones experimentales sobre mezclas, soluciones y métodos de separación.", evaluated: false },
+                        { code: "OA 10", desc: "Demostrar que los cambios físicos de la materia son reversibles y los cambios químicos son irreversibles.", evaluated: false },
+                        { code: "OA 11", desc: "Explicar la función de los principales órganos del sistema reproductor humano y su autocuidado.", evaluated: false },
+                        { code: "OA 12", desc: "Investigar los cambios corporales durante la pubertad y la importancia de la higiene y afectividad.", evaluated: false },
+                        { code: "OA 13", desc: "Describir los riesgos asociados al consumo de alcohol, tabaco y drogas y promover estilos de vida saludables.", evaluated: false },
+                        { code: "OA 14", desc: "Diseñar proyectos científicos escolares aplicando el método científico y registrando evidencias.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Observación y Experimentación", desc: "Planificar y realizar investigaciones experimentales controlando variables para validar hipótesis sobre el entorno.", developed: true },
+                        { name: "Análisis de Evidencias", desc: "Registrar, tabular y analizar datos cuantitativos y cualitativos para extraer conclusiones científicas.", developed: false }
+                    ]
+                },
+                "Historia, Geografía y Cs. Sociales": {
+                    oa: [
+                        { code: "OA 01", desc: "Reconocer y ubicar las grandes zonas naturales de Chile (Norte Grande, Norte Chico, Zona Central, Sur, Austral).", evaluated: true },
+                        { code: "OA 02", desc: "Describir y comparar las principales macroformas del relieve de Chile, clima, hidrografía y población.", evaluated: true },
+                        { code: "OA 03", desc: "Analizar el impacto de los riesgos naturales (sismos, volcanes, inundaciones) en la población chilena.", evaluated: true },
+                        { code: "OA 04", desc: "Describir el proceso de descubrimiento y conquista de América y Chile (actores y choques culturales).", evaluated: true },
+                        { code: "OA 05", desc: "Analizar las motivaciones de los conquistadores españoles y las consecuencias de la llegada europea a América.", evaluated: false },
+                        { code: "OA 06", desc: "Describir la Colonia en Chile: sociedad mestiza, encomiendas, evangelización, vida cotidiana y sincretismo.", evaluated: false },
+                        { code: "OA 07", desc: "Explicar las relaciones de comercio y conflicto entre españoles y mapuches durante la Colonia (guerra de Arauco).", evaluated: false },
+                        { code: "OA 08", desc: "Reconocer el patrimonio cultural de Chile heredado del periodo colonial y prehispánico.", evaluated: false },
+                        { code: "OA 09", desc: "Reconocer derechos y deberes ciudadanos fundamentales estipulados en la Constitución Política de Chile.", evaluated: false },
+                        { code: "OA 10", desc: "Describir la organización democrática de Chile: división de poderes del Estado y autoridades públicas.", evaluated: false },
+                        { code: "OA 11", desc: "Explicar la importancia de la participación ciudadana en organizaciones comunitarias y la vida republicana.", evaluated: false },
+                        { code: "OA 12", desc: "Reconocer que todas las personas tienen derechos humanos inalienables que el Estado debe resguardar.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Pensamiento Espacial", desc: "Interpretar mapas temáticos, planos, coordenadas geográficas e imágenes satelitales del territorio.", developed: true },
+                        { name: "Pensamiento Temporal", desc: "Ubicar cronológicamente procesos históricos de Chile en líneas de tiempo y establecer relaciones causales.", developed: false }
+                    ]
+                },
+                "Inglés": {
+                    oa: [
+                        { code: "OA 01", desc: "Demostrar comprensión de textos orales adaptados y auténticos simples, canciones y narraciones breves.", evaluated: true },
+                        { code: "OA 02", desc: "Identificar información general y detalles específicos en textos auditivos sobre temas familiares y cotidianos.", evaluated: true },
+                        { code: "OA 03", desc: "Demostrar comprensión de textos leídos breves y variados, identificando palabras clave e ideas principales.", evaluated: false },
+                        { code: "OA 04", desc: "Leer y demostrar comprensión de textos literarios y no literarios simples con apoyo visual.", evaluated: false },
+                        { code: "OA 05", desc: "Expresarse oralmente mediante diálogos breves, preguntas y respuestas sobre rutinas, gustos y preferencias.", evaluated: false },
+                        { code: "OA 06", desc: "Participar en interacciones orales breves usando vocabulario temático y expresiones de cortesía.", evaluated: false },
+                        { code: "OA 07", desc: "Escribir oraciones y textos muy breves (postales, descripciones, listas) guiados por modelos.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Comprensión Auditiva", desc: "Captar el sentido global y palabras clave de grabaciones o interacciones en inglés.", developed: true },
+                        { name: "Producción Comunicativa", desc: "Interactuar de forma simple en inglés usando oraciones estructuradas.", developed: false }
+                    ]
+                },
+                "Tecnología": {
+                    oa: [
+                        { code: "OA 01", desc: "Identificar necesidades personales o grupales que impliquen la creación de un objeto o producto tecnológico.", evaluated: true },
+                        { code: "OA 02", desc: "Planificar la creación de un objeto tecnológico, seleccionando materiales, herramientas y técnicas adecuadas.", evaluated: true },
+                        { code: "OA 03", desc: "Construir objetos tecnológicos manipulando herramientas y materiales de manera segura.", evaluated: false },
+                        { code: "OA 04", desc: "Evaluar el producto tecnológico creado aplicando criterios técnicos y proponiendo mejoras.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Diseño y Planificación", desc: "Idear soluciones tangibles a problemas cotidianos mediante esquemas y secuencias de trabajo.", developed: true },
+                        { name: "Ejecución Segura", desc: "Manipular herramientas y materiales respetando normas de seguridad e higiene.", developed: false }
+                    ]
+                },
+                "Música": {
+                    oa: [
+                        { code: "OA 01", desc: "Comunicar sentimientos y sensaciones al escuchar obras musicales de Chile y el mundo.", evaluated: true },
+                        { code: "OA 02", desc: "Describir elementos del lenguaje musical (pulso, acento, ritmo, melodía) en obras escuchadas.", evaluated: true },
+                        { code: "OA 03", desc: "Cantar y tocar repertorio escolar y tradicional con precisión rítmica y melódica.", evaluated: false },
+                        { code: "OA 04", desc: "Improvisar y crear patrones rítmicos y melódicos simples usando instrumentos de percusión o voz.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Audición Activa", desc: "Percutir y reconocer patrones rítmicos y expresivos en diversos géneros musicales.", developed: true },
+                        { name: "Interpretación Sonora", desc: "Reproducir melodías sencillas demostrando coordinación rítmica y auditiva.", developed: false }
+                    ]
+                },
+                "Educación Física y Salud": {
+                    oa: [
+                        { code: "OA 01", desc: "Demostrar habilidades motrices específicas en juegos y deportes (lanzar, recibir, correr, saltar).", evaluated: true },
+                        { code: "OA 02", desc: "Aplicar reglas y juego limpio en la práctica de deportes individuales y colectivos.", evaluated: true },
+                        { code: "OA 03", desc: "Desarrollar la resistencia cardiovascular, flexibilidad y fuerza mediante juegos activos y ejercicio.", evaluated: false },
+                        { code: "OA 04", desc: "Adoptar hábitos de higiene, hidratación y autocuidado antes, durante y después de la actividad física.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Desempeño Motriz", desc: "Coordinar movimientos corporales en actividades lúdicas y deportivas.", developed: true },
+                        { name: "Trabajo en Equipo", desc: "Colaborar con pares respetando normas de convivencia y juego limpio.", developed: false }
+                    ]
+                }
+            },
+            "6° Básico": {
+                "Matemáticas": {
+                    oa: [
+                        { code: "OA 01", desc: "Demostrar que comprenden los factores y múltiplos, determinando números primos y compuestos.", evaluated: true },
+                        { code: "OA 02", desc: "Determinar el mínimo común múltiplo (mcm) y máximo común divisor (mcd) de números naturales.", evaluated: true },
+                        { code: "OA 03", desc: "Resolver adiciones y sustracciones de fracciones propias, impropias, números mixtos y decimales.", evaluated: true },
+                        { code: "OA 04", desc: "Demostrar que comprenden la multiplicación y división de decimales por números naturales.", evaluated: true },
+                        { code: "OA 05", desc: "Demostrar que comprenden la multiplicación y división de fracciones y números mixtos.", evaluated: false },
+                        { code: "OA 06", desc: "Utilizar porcentajes en situaciones de la vida real (cálculo de descuentos, intereses simples y aumentos).", evaluated: false },
+                        { code: "OA 07", desc: "Demostrar que comprenden las razones, expresándolas pictórica y simbólicamente en contextos reales.", evaluated: false },
+                        { code: "OA 08", desc: "Resolver problemas que implican proporciones directas e inversas en tablas, gráficos y enunciados.", evaluated: false },
+                        { code: "OA 09", desc: "Resolver ecuaciones de primer grado con una incógnita en contextos diversos.", evaluated: false },
+                        { code: "OA 10", desc: "Representar generalizaciones de relaciones numéricas usando expresiones algebraicas y letras.", evaluated: false },
+                        { code: "OA 11", desc: "Demostrar que comprenden el concepto de área de superficies de cubos y paralelepípedos.", evaluated: false },
+                        { code: "OA 12", desc: "Calcular el volumen de cubos y paralelepípedos expresado en unidades cúbicas estándar.", evaluated: false },
+                        { code: "OA 13", desc: "Construir ángulos usando transportador y calcular medidas en polígonos regulares y circunferencias.", evaluated: false },
+                        { code: "OA 14", desc: "Analizar gráficos circulares y de barras múltiples para extraer información y comunicar inferencias.", evaluated: false },
+                        { code: "OA 15", desc: "Calcular el promedio de un conjunto de datos y aplicarlo en la toma de decisiones estadísticas.", evaluated: false },
+                        { code: "OA 16", desc: "Calcular la probabilidad de ocurrencia de un evento aleatorio usando la regla de Laplace.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Resolver problemas", desc: "Seleccionar y aplicar algoritmos y fórmulas en problemas aritméticos, proporciones y geometría.", developed: true },
+                        { name: "Argumentar y comunicar", desc: "Justificar procedimientos y conjeturas con el uso de propiedades matemáticas y contraejemplos.", developed: true },
+                        { name: "Modelar", desc: "Representar situaciones cotidianas mediante ecuaciones de primer grado y modelos geométricos tridimensionales.", developed: false }
+                    ]
+                },
+                "Lenguaje y Literatura": {
+                    oa: [
+                        { code: "OA 01", desc: "Leer de manera autónoma y comprender textos literarios complejos y novelas juveniles.", evaluated: true },
+                        { code: "OA 02", desc: "Reflexionar sobre las obras leídas, discutiendo temas valóricos, dilemas y puntos de vista.", evaluated: true },
+                        { code: "OA 03", desc: "Analizar personajes de novelas y cuentos, evaluando sus motivaciones, acciones y evolución.", evaluated: true },
+                        { code: "OA 04", desc: "Analizar poemas reconociendo lenguaje figurado, temple de ánimo, rima y figuras retóricas.", evaluated: true },
+                        { code: "OA 05", desc: "Analizar obras dramáticas y teatrales considerando el conflicto dramático y caracterización de roles.", evaluated: false },
+                        { code: "OA 06", desc: "Leer independientemente textos no literarios (columnas de opinión, reportajes) para formarse juicio crítico.", evaluated: false },
+                        { code: "OA 07", desc: "Evaluar información en textos no literarios reconociendo sesgos, estereotipos y argumentos válidos.", evaluated: false },
+                        { code: "OA 08", desc: "Analizar y comparar textos informativos sobre un mismo tema en distintos soportes impresos o digitales.", evaluated: false },
+                        { code: "OA 09", desc: "Desarrollar el hábito lector autónomo mediante la lectura crítica de textos variados.", evaluated: false },
+                        { code: "OA 10", desc: "Aplicar estrategias de comprensión lectora avanzada (inferencias profundas y síntesis global).", evaluated: false },
+                        { code: "OA 11", desc: "Ampliar el vocabulario temático mediante el uso de sinónimos, familias de palabras y contexto.", evaluated: false },
+                        { code: "OA 12", desc: "Escribir textos creativos e informativos con estructura organizada, párrafos cohesionados y estilo propio.", evaluated: false },
+                        { code: "OA 13", desc: "Escribir artículos de opinión y cartas al director fundamentando con argumentos sólidos.", evaluated: false },
+                        { code: "OA 14", desc: "Planificar, redactar, revisar y editar textos escritos aplicando rigurosamente normas ortográficas.", evaluated: false },
+                        { code: "OA 15", desc: "Participar en exposiciones orales, debates y mesas redondas fundamentando con evidencias claras.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Pensamiento Crítico", desc: "Contrastar opiniones y puntos de vista presentes en diversos medios escritos y digitales.", developed: true },
+                        { name: "Expresión Oral y Escrita", desc: "Transmitir ideas de forma organizada con adecuada modulación, fluidez y redacción académica.", developed: false }
+                    ]
+                },
+                "Ciencias Naturales": {
+                    oa: [
+                        { code: "OA 01", desc: "Explicar la función de los sistemas respiratorio, circulatorio y digestivo en el cuerpo humano y su coordinación.", evaluated: true },
+                        { code: "OA 02", desc: "Analizar la participación de los nutrientes en el organismo y diseñar dietas equilibradas y saludables.", evaluated: true },
+                        { code: "OA 03", desc: "Investigar los efectos nocivos del consumo de drogas, alcohol y tabaco en los sistemas corporales.", evaluated: true },
+                        { code: "OA 04", desc: "Analizar los efectos de la actividad física regular en la salud cardiorrespiratoria y metabólica.", evaluated: true },
+                        { code: "OA 05", desc: "Investigar la estructura interna de la Tierra (corteza, manto, núcleo) y la teoría de placas tectónicas.", evaluated: false },
+                        { code: "OA 06", desc: "Explicar la formación de sismos, tsunamis y erupciones volcánicas y medidas de prevención ciudadana en Chile.", evaluated: false },
+                        { code: "OA 07", desc: "Experimentar con circuitos eléctricos domiciliarios en serie y en paralelo y medir voltaje y corriente básica.", evaluated: false },
+                        { code: "OA 08", desc: "Investigar la transformación de la energía eléctrica en calor, luz y sonido en aparatos cotidianos.", evaluated: false },
+                        { code: "OA 09", desc: "Investigar los recursos energéticos renovables y no renovables de Chile y su impacto ambiental.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Investigación Científica", desc: "Formular preguntas de investigación experimental sobre sistemas corporales y fenómenos geofísicos.", developed: true },
+                        { name: "Evaluación de Evidencias", desc: "Interpretar datos de salud, consumo energético y sismología con base científica rigurosa.", developed: false }
+                    ]
+                },
+                "Historia, Geografía y Cs. Sociales": {
+                    oa: [
+                        { code: "OA 01", desc: "Explicar los antecedentes, desarrollo y consecuencias del proceso de Independencia de Chile.", evaluated: true },
+                        { code: "OA 02", desc: "Caracterizar los primeros gobiernos de la república y los ensayos constitucionales en Chile.", evaluated: true },
+                        { code: "OA 03", desc: "Analizar la consolidación de la república conservadora en Chile (economía portaliana y Constitución de 1833).", evaluated: true },
+                        { code: "OA 04", desc: "Caracterizar los gobiernos liberales y la expansión territorial de Chile en el siglo XIX (Guerra del Pacífico).", evaluated: true },
+                        { code: "OA 05", desc: "Analizar los cambios en la sociedad chilena a fines del siglo XIX (urbanización, salitre y cuestión social).", evaluated: false },
+                        { code: "OA 06", desc: "Reconocer las principales transformaciones culturales, científicas y educacionales del siglo XIX en Chile.", evaluated: false },
+                        { code: "OA 07", desc: "Analizar la organización política y democrática de Chile actual (poderes del estado y participación).", evaluated: false },
+                        { code: "OA 08", desc: "Reconocer los derechos ciudadanos garantizados en la Constitución y los mecanismos de protección.", evaluated: false },
+                        { code: "OA 09", desc: "Describir el rol del Estado de Chile en la economía y el bienestar social de los ciudadanos.", evaluated: false },
+                        { code: "OA 10", desc: "Reconocer la diversidad cultural, el patrimonio histórico nacional y la identidad mestiza chilena.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Análisis de Fuentes", desc: "Interpretar documentos históricos primarios y secundarios del siglo XIX con actitud crítica.", developed: true },
+                        { name: "Conciencia Cívica", desc: "Comprender los deberes y derechos de la participación ciudadana en la sociedad democrática.", developed: false }
+                    ]
+                },
+                "Inglés": {
+                    oa: [
+                        { code: "OA 01", desc: "Demostrar comprensión de textos orales sobre temas conocidos, instrucciones y descripciones breves.", evaluated: true },
+                        { code: "OA 02", desc: "Identificar ideas principales y detalles específicos en textos literarios y no literarios leídos de manera autónoma.", evaluated: true },
+                        { code: "OA 03", desc: "Participar en conversaciones breves sobre experiencias personales, intereses y descripciones de lugares.", evaluated: false },
+                        { code: "OA 04", desc: "Escribir párrafos breves y estructurados sobre temas cotidianos usando conectores básicos (and, but, because).", evaluated: false },
+                        { code: "OA 05", desc: "Describir eventos pasados simples usando verbos regulares e irregulares frecuentes.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Comprensión Lectora", desc: "Extraer información explícita de textos cortos en inglés.", developed: true },
+                        { name: "Producción Escrita", desc: "Redactar escritos simples aplicando vocabulario del nivel.", developed: false }
+                    ]
+                },
+                "Tecnología": {
+                    oa: [
+                        { code: "OA 01", desc: "Analizar objetos tecnológicos y proponer modificaciones para mejorar su eficiencia o diseño.", evaluated: true },
+                        { code: "OA 02", desc: "Diseñar y crear soluciones tecnológicas mediante software de presentación o maquetas físicas.", evaluated: true },
+                        { code: "OA 03", desc: "Utilizar herramientas de procesamiento de información y comunicación digital de manera segura.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Pensamiento Tecnológico", desc: "Evaluar la funcionalidad de herramientas y productos cotidianos.", developed: true },
+                        { name: "Alfabetización Digital", desc: "Aplicar recursos informáticos básicos para la presentación de proyectos.", developed: false }
+                    ]
+                },
+                "Música": {
+                    oa: [
+                        { code: "OA 01", desc: "Escuchar y apreciar música folclórica chilena y latinoamericana, reconociendo instrumentos y timbres.", evaluated: true },
+                        { code: "OA 02", desc: "Interpretar repertorio vocal e instrumental a una y dos voces con precisión y fluidez.", evaluated: true },
+                        { code: "OA 03", desc: "Crear arreglos musicales sencillos y acompañamientos rítmicos para canciones.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Valoración Patrimonial", desc: "Identificar raíces musicales de Chile y Latinoamérica.", developed: true },
+                        { name: "Práctica Instrumental", desc: "Mantener el pulso y la afinación en interpretaciones grupales.", developed: false }
+                    ]
+                },
+                "Educación Física y Salud": {
+                    oa: [
+                        { code: "OA 01", desc: "Mejorar las habilidades motrices específicas en deportes colectivos de colaboración y oposición.", evaluated: true },
+                        { code: "OA 02", desc: "Aplicar estrategias de juego y tácticas básicas en deportes de equipo.", evaluated: true },
+                        { code: "OA 03", desc: "Ejecutar ejercicios de acondicionamiento físico midiendo la frecuencia cardíaca y esfuerzo.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Condición Física", desc: "Gestionar el esfuerzo personal en circuitos de resistencia y fuerza.", developed: true },
+                        { name: "Estrategia Deportiva", desc: "Tomar decisiones tácticas acertadas en situaciones de juego colectivo.", developed: false }
+                    ]
+                }
+            },
+            "7° Básico": {
+                "Matemáticas": {
+                    oa: [
+                        { code: "OA 01", desc: "Mostrar que comprenden la adición y sustracción de números enteros aplicando reglas de signos.", evaluated: true },
+                        { code: "OA 02", desc: "Explicar la multiplicación y división de números enteros mediante modelos concretos y pictóricos.", evaluated: true },
+                        { code: "OA 03", desc: "Resolver operaciones combinadas de números enteros aplicando prioridad de operaciones.", evaluated: true },
+                        { code: "OA 04", desc: "Mostrar que comprenden la multiplicación y división de fracciones y decimales positivos y negativos.", evaluated: true },
+                        { code: "OA 05", desc: "Resolver problemas que involucren potencias de base racional y exponente entero.", evaluated: false },
+                        { code: "OA 06", desc: "Resolver problemas que implican proporciones directas e inversas en variados contextos.", evaluated: false },
+                        { code: "OA 07", desc: "Representar porcentajes mayores que 100% y menores que 1% en situaciones cotidianas.", evaluated: false },
+                        { code: "OA 08", desc: "Mostrar que comprenden las expresiones algebraicas, evaluándolas para diferentes valores.", evaluated: false },
+                        { code: "OA 09", desc: "Modelar situaciones usando expresiones algebraicas y reducción de términos semejantes.", evaluated: false },
+                        { code: "OA 10", desc: "Resolver ecuaciones lineales de primer grado con coeficientes racionales en un paso y dos pasos.", evaluated: false },
+                        { code: "OA 11", desc: "Plantear y resolver inecuaciones lineales de primer grado con una incógnita.", evaluated: false },
+                        { code: "OA 12", desc: "Describir la posición de puntos en el plano cartesiano con coordenadas negativas y positivas.", evaluated: false },
+                        { code: "OA 13", desc: "Describir transformaciones isométricas (traslación, rotación, reflexión) en el plano cartesiano.", evaluated: false },
+                        { code: "OA 14", desc: "Construir triángulos y polígonos regulares congruentes y semejantes usando regla, compás y software.", evaluated: false },
+                        { code: "OA 15", desc: "Desarrollar la fórmula para calcular el área de triángulos, paralelogramos y trapecios.", evaluated: false },
+                        { code: "OA 16", desc: "Establecer relaciones entre el área de círculos y el perímetro de la circunferencia.", evaluated: false },
+                        { code: "OA 17", desc: "Calcular el área de superficies compuestas y el volumen de cuerpos geométricos rectos.", evaluated: false },
+                        { code: "OA 18", desc: "Interpretar gráficos de barras dobles y circulares, evaluando la tendencia de conjuntos de datos.", evaluated: false },
+                        { code: "OA 19", desc: "Calcular medidas de tendencia central (promedio, mediana, moda) y rango en datos agrupados y no agrupados.", evaluated: false },
+                        { code: "OA 20", desc: "Realizar experimentos aleatorios, registrar frecuencias relativas y calcular probabilidades teóricas.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Resolver problemas", desc: "Plantear y resolver problemas aritméticos y algebraicos con números racionales y enteros.", developed: true },
+                        { name: "Argumentar y comunicar", desc: "Fundamentar conjeturas sobre propiedades algebraicas y geométricas con rigor formal.", developed: true },
+                        { name: "Modelar", desc: "Construir modelos matemáticos para representar situaciones de proporcionalidad y álgebra.", developed: false }
+                    ]
+                },
+                "Lenguaje y Literatura": {
+                    oa: [
+                        { code: "OA 01", desc: "Leer textos literarios significativos analizando características del género narrativo y dramático.", evaluated: true },
+                        { code: "OA 02", desc: "Reflexionar sobre las obras leídas, analizando dilemas morales y la perspectiva del autor.", evaluated: true },
+                        { code: "OA 03", desc: "Analizar las narraciones leídas para enriquecer su comprensión: evolución psicológica de personajes.", evaluated: true },
+                        { code: "OA 04", desc: "Analizar textos dramáticos reconociendo conflictos, tensiones y recursos escénicos.", evaluated: true },
+                        { code: "OA 05", desc: "Analizar obras líricas e identificar figuras retóricas (metáfora, personificación, hipérbole).", evaluated: false },
+                        { code: "OA 06", desc: "Leer independientemente textos no literarios (artículos de opinión, cartas, biografías) con sentido crítico.", evaluated: false },
+                        { code: "OA 07", desc: "Evaluar información en textos no literarios identificando sesgos, falacias y solidez de argumentos.", evaluated: false },
+                        { code: "OA 08", desc: "Comparar textos informativos y argumentativos sobre un mismo tema en distintos soportes.", evaluated: false },
+                        { code: "OA 09", desc: "Analizar y evaluar textos argumentativos reconociendo tesis, bases, garantías y respaldos.", evaluated: false },
+                        { code: "OA 10", desc: "Desarrollar el hábito lector crítico mediante la lectura autónoma de obras variadas.", evaluated: false },
+                        { code: "OA 11", desc: "Ampliar el vocabulario académico y técnico mediante raíces, prefijos y sufijos.", evaluated: false },
+                        { code: "OA 12", desc: "Escribir textos de intención literaria (cuentos, crónicas, poemas) y ensayos breves.", evaluated: false },
+                        { code: "OA 13", desc: "Escribir textos argumentativos fundamentando con evidencias de investigación y fuentes veraces.", evaluated: false },
+                        { code: "OA 14", desc: "Planificar, redactar, revisar y editar textos escritos aplicando normas ortográficas y de cohesión.", evaluated: false },
+                        { code: "OA 15", desc: "Participar en diálogos constructivos, debates y presentaciones formales con argumentos sólidos.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Análisis Crítico", desc: "Desentrañar posturas argumentativas e intenciones implícitas en discursos y artículos.", developed: true },
+                        { name: "Redacción y Estilo", desc: "Escribir textos bien estructurados con léxico preciso y adecuado al contexto académico.", developed: false }
+                    ]
+                },
+                "Ciencias Naturales": {
+                    oa: [
+                        { code: "OA 01", desc: "Explicar la teoría celular y las diferencias estructurales entre células eucariontes y procariontes.", evaluated: true },
+                        { code: "OA 02", desc: "Explicar la función de los organelos celulares en el metabolismo y división celular.", evaluated: true },
+                        { code: "OA 03", desc: "Describir la organización de las células en tejidos, órganos y sistemas en organismos pluricelulares.", evaluated: true },
+                        { code: "OA 04", desc: "Explicar el modelo corpuscular de la materia y sus cambios de estado por absorción o liberación de calor.", evaluated: true },
+                        { code: "OA 05", desc: "Caracterizar los estados de la materia (sólido, líquido, gas) y la presión en fluidos según modelo corpuscular.", evaluated: false },
+                        { code: "OA 06", desc: "Investigar experimentalmente la ley de conservación de la masa en reacciones químicas sencillas.", evaluated: false },
+                        { code: "OA 07", desc: "Investigar las capas de la atmósfera y su rol vital en el efecto invernadero natural y protección UV.", evaluated: false },
+                        { code: "OA 08", desc: "Analizar la contaminación atmosférica y proponer medidas de mitigación del cambio climático en Chile.", evaluated: false },
+                        { code: "OA 09", desc: "Explicar la distribución de las aguas en la Tierra (océanos y glaciares) y corrientes marinas.", evaluated: false },
+                        { code: "OA 10", desc: "Explicar la interacción gravitacional entre cuerpos celestes del Sistema Solar.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Investigación Científica", desc: "Formular explicaciones basadas en modelos empíricos y teoría celular y corpuscular.", developed: true },
+                        { name: "Análisis de Datos", desc: "Evaluar críticamente datos experimentales de temperatura, presión y composición química.", developed: false }
+                    ]
+                },
+                "Historia, Geografía y Cs. Sociales": {
+                    oa: [
+                        { code: "OA 01", desc: "Explicar el proceso de hominización y la evolución de las primeras civilizaciones fluviales de la antigüedad.", evaluated: true },
+                        { code: "OA 02", desc: "Caracterizar el surgimiento de las primeras civilizaciones (Mesopotamia, Egipto, India, China) y su organización.", evaluated: true },
+                        { code: "OA 03", desc: "Reconocer las características de la civilización griega y su legado en la democracia y cultura occidental.", evaluated: true },
+                        { code: "OA 04", desc: "Caracterizar el legado cultural de la civilización romana en el derecho, ingeniería y expansión mediterránea.", evaluated: true },
+                        { code: "OA 05", desc: "Analizar el espacio geográfico del mar Mediterráneo y su influencia en el desarrollo de Grecia y Roma.", evaluated: false },
+                        { code: "OA 06", desc: "Describir la Edad Media en Europa, el surgimiento del feudalismo y el rol central de la Iglesia católica.", evaluated: false },
+                        { code: "OA 07", desc: "Analizar el rol de las cruzadas, el comercio medieval y el renacimiento urbano en Europa occidental.", evaluated: false },
+                        { code: "OA 08", desc: "Describir el impacto del humanismo y el Renacimiento en la transformación cultural de Europa.", evaluated: false },
+                        { code: "OA 09", desc: "Analizar los derechos y deberes ciudadanos en la organización democrática contemporánea.", evaluated: false },
+                        { code: "OA 10", desc: "Reconocer los principios democráticos fundamentales (soberanía popular, pluralismo, Estado de derecho).", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Pensamiento Temporal", desc: "Secuenciar civilizaciones y procesos históricos clave en la historia universal antigua y medieval.", developed: true },
+                        { name: "Análisis Crítico", desc: "Comparar las instituciones políticas de la antigüedad clásica con la democracia contemporánea.", developed: false }
+                    ]
+                },
+                "Inglés": {
+                    oa: [
+                        { code: "OA 01", desc: "Demostrar comprensión de textos orales y audiovisuales sobre temas de interés global y juvenil.", evaluated: true },
+                        { code: "OA 02", desc: "Leer y comprender textos informativos, descripciones y narraciones breves identificando argumentos.", evaluated: true },
+                        { code: "OA 03", desc: "Interactuar oralmente expresando opiniones, preferencias y planes futuros con vocabulario ampliado.", evaluated: false },
+                        { code: "OA 04", desc: "Escribir textos breves (correos electrónicos, reseñas, biografías) utilizando conectores lógicos de secuencia.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Comprensión Global", desc: "Interpretar textos orales y escritos de mediana complejidad.", developed: true },
+                        { name: "Expresión Escrita", desc: "Comunicar ideas y experiencias personales redactando párrafos cohesionados.", developed: false }
+                    ]
+                },
+                "Tecnología": {
+                    oa: [
+                        { code: "OA 01", desc: "Diseñar soluciones a problemas que involucren el uso de tecnologías de la información y comunicación (TIC).", evaluated: true },
+                        { code: "OA 02", desc: "Evaluar el impacto social y ambiental de diversos productos tecnológicos y procesos de producción.", evaluated: true },
+                        { code: "OA 03", desc: "Utilizar planillas de cálculo y programas de diseño para organizar información y prototipos.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Diseño y Evaluación", desc: "Analizar la viabilidad técnica y ecológica de proyectos tecnológicos.", developed: true },
+                        { name: "Manejo Digital", desc: "Utilizar herramientas ofimáticas avanzadas para procesar datos.", developed: false }
+                    ]
+                },
+                "Música": {
+                    oa: [
+                        { code: "OA 01", desc: "Apreciar y analizar obras musicales populares y cultas del mundo, reconociendo contextos estéticos.", evaluated: true },
+                        { code: "OA 02", desc: "Interpretar repertorio instrumental o vocal a más voces con atención a la afinación y el fraseo.", evaluated: true },
+                        { code: "OA 03", desc: "Componer piezas musicales breves utilizando tecnologías digitales de audio o instrumentos convencionales.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Análisis Estético", desc: "Reconocer las características formales y expresivas de obras musicales.", developed: true },
+                        { name: "Creación Musical", desc: "Diseñar estructuras sonoras originales combinando ritmos y timbres.", developed: false }
+                    ]
+                },
+                "Educación Física y Salud": {
+                    oa: [
+                        { code: "OA 01", desc: "Perfeccionar patrones motores específicos en deportes individuales o de cooperación/oposición.", evaluated: true },
+                        { code: "OA 02", desc: "Planificar y aplicar rutinas de ejercicios para mejorar la resistencia aeróbica y fuerza muscular.", evaluated: true },
+                        { code: "OA 03", desc: "Promover hábitos de vida activa, alimentación saludable y prevención de lesiones en el deporte.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Autonomía Motriz", desc: "Diseñar planes de entrenamiento personal ajustados a capacidades físicas.", developed: true },
+                        { name: "Salud y Bienestar", desc: "Valorar los efectos fisiológicos y mentales de la actividad física regular.", developed: false }
+                    ]
+                }
+            },
+            "8° Básico": {
+                "Matemáticas": {
+                    oa: [
+                        { code: "OA 01", desc: "Mostrar que comprenden la multiplicación y la división de números enteros: representando de manera concreta, pictórica y simbólica; aplicando la regla de los signos; resolviendo problemas.", evaluated: true },
+                        { code: "OA 02", desc: "Utilizar las operaciones de multiplicación y división con los números racionales en el contexto de la resolución de problemas (fracciones, decimales y enteros).", evaluated: true },
+                        { code: "OA 03", desc: "Explicar la multiplicación, la división y el proceso de formar potencias de potencias de base natural y exponente natural hasta 3.", evaluated: true },
+                        { code: "OA 04", desc: "Mostrar que comprenden las raíces cuadradas de números naturales: estimándolas intuitivamente, representándolas y aplicándolas.", evaluated: true },
+                        { code: "OA 05", desc: "Resolver problemas que involucran variaciones porcentuales en contextos diversos, usando representaciones pictóricas y simbólicas.", evaluated: false },
+                        { code: "OA 06", desc: "Mostrar que comprenden las operaciones de expresiones algebraicas relacionándolas con áreas y volúmenes, y determinando formas factorizadas.", evaluated: false },
+                        { code: "OA 07", desc: "Mostrar que comprenden la noción de función por medio de un cambio lineal: tablas, metáforas de máquinas, reglas y plano cartesiano.", evaluated: false },
+                        { code: "OA 08", desc: "Modelar situaciones de la vida diaria y de otras asignaturas usando ecuaciones lineales de la forma ax=b, ax+b=c, etc.", evaluated: false },
+                        { code: "OA 09", desc: "Resolver inecuaciones lineales con coeficientes racionales en el contexto de la resolución de problemas.", evaluated: false },
+                        { code: "OA 10", desc: "Utilizar funciones lineales para modelar situaciones de cambio constante, relacionándolas con el interés simple.", evaluated: false },
+                        { code: "OA 11", desc: "Desarrollar las fórmulas para encontrar el área de superficies y el volumen de cilindros y conos.", evaluated: false },
+                        { code: "OA 12", desc: "Explicar de manera concreta, pictórica y simbólica la validez del teorema de Pitágoras y aplicarlo a problemas geométricos.", evaluated: false },
+                        { code: "OA 13", desc: "Describir la posición y el movimiento (traslaciones, rotaciones y reflexiones) de figuras 2D usando vectores y ejes cartesianos.", evaluated: false },
+                        { code: "OA 14", desc: "Componer rotaciones, traslaciones y reflexiones en el plano cartesiano y en el espacio, y aplicar a simetrías.", evaluated: false },
+                        { code: "OA 15", desc: "Mostrar que comprenden las medidas de posición, percentiles y cuartiles, representándolas con diagramas de cajón.", evaluated: false },
+                        { code: "OA 16", desc: "Evaluar la forma en que los datos están agrupados y representados en tablas o gráficos para emitir juicios informados.", evaluated: false },
+                        { code: "OA 17", desc: "Explicar el principio combinatorio multiplicativo a partir de situaciones concretas y tablas o árboles regulares para calcular probabilidades.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Resolver problemas", desc: "Resolver problemas utilizando estrategias como destacar información, ensayo y error sistemático, procesos reversibles y analogías.", developed: true },
+                        { name: "Argumentar y comunicar", desc: "Formular, comprobar y evaluar conjeturas matemáticas, y comunicar argumentos de manera oral y escrita.", developed: true },
+                        { name: "Modelar", desc: "Construir modelos matemáticos utilizando ecuaciones, funciones lineales, geometría y estadística en contextos reales.", developed: false },
+                        { name: "Representar", desc: "Elegir y utilizar representaciones concretas, pictóricas y simbólicas para enunciados y situaciones en contextos diversos.", developed: false }
+                    ]
+                },
+                "Lenguaje y Literatura": {
+                    oa: [
+                        { code: "OA 01", desc: "Analizar textos narrativos para interpretar elementos de mundo ficticio, temas y perspectiva del narrador.", evaluated: true },
+                        { code: "OA 02", desc: "Reflexionar sobre las obras leídas, debatiendo sobre dilemas éticos y cosmovisiones de los autores.", evaluated: true },
+                        { code: "OA 03", desc: "Analizar los poemas leídos reconociendo figuras literarias complejas, temple de ánimo y ritmo.", evaluated: true },
+                        { code: "OA 04", desc: "Analizar textos dramáticos contemporáneos y clásicos considerando el conflicto y visión de mundo.", evaluated: true },
+                        { code: "OA 05", desc: "Leer independientemente y evaluar textos no literarios (ensayos, reportajes, columnas) críticos.", evaluated: false },
+                        { code: "OA 06", desc: "Evaluar la validez de los argumentos en textos argumentativos y discursos públicos.", evaluated: false },
+                        { code: "OA 07", desc: "Comparar tratamientos de un mismo tema en variados textos y medios de comunicación masiva.", evaluated: false },
+                        { code: "OA 08", desc: "Formular una opinión crítica y fundamentada sobre información presentada en textos de medios masivos.", evaluated: false },
+                        { code: "OA 09", desc: "Desarrollar el hábito lector autónomo mediante la lectura de obras literarias y ensayos significativos.", evaluated: false },
+                        { code: "OA 10", desc: "Ampliar el vocabulario técnico y literario reconociendo matices de significado y polisemia.", evaluated: false },
+                        { code: "OA 11", desc: "Escribir textos de intención literaria y ensayos argumentativos estructurados con rigor académico.", evaluated: false },
+                        { code: "OA 12", desc: "Escribir textos expositivos y argumentativos bien estructurados aplicando normas de cohesión.", evaluated: false },
+                        { code: "OA 13", desc: "Planificar, redactar, revisar y editar textos aplicando normas rigurosas de ortografía y gramática.", evaluated: false },
+                        { code: "OA 14", desc: "Participar activamente en conversaciones y debates argumentando con fundamentos sólidos y respeto.", evaluated: false },
+                        { code: "OA 15", desc: "Comprender y evaluar discursos orales en paneles, debates y medios audiovisuales.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Análisis Crítico", desc: "Desentrañar los propósitos implícitos en discursos y textos argumentativos complejos de la actualidad.", developed: true },
+                        { name: "Producción Escrita", desc: "Escribir ensayos breves estructurados con introducción, tesis, desarrollo argumentativo y conclusión.", developed: false }
+                    ]
+                },
+                "Ciencias Naturales": {
+                    oa: [
+                        { code: "OA 01", desc: "Explicar la teoría de la tectónica de placas y su relación con sismos, vulcanismo y la geografía de Chile.", evaluated: true },
+                        { code: "OA 02", desc: "Investigar las capas de la Tierra (litosfera, astenosfera, mesosfera) y la convección en el manto.", evaluated: true },
+                        { code: "OA 03", desc: "Investigar y explicar las propiedades de la materia en función del modelo corpuscular y energía cinética.", evaluated: true },
+                        { code: "OA 04", desc: "Explicar la formación de soluciones químicas y calcular la concentración física (porcentaje masa/masa y volumen/volumen).", evaluated: true },
+                        { code: "OA 05", desc: "Analizar los ciclos biogeoquímicos (carbono, nitrógeno, agua) y su importancia en los ecosistemas.", evaluated: false },
+                        { code: "OA 06", desc: "Investigar el flujo de energía en los ecosistemas y la huella ecológica humana.", evaluated: false },
+                        { code: "OA 07", desc: "Explicar la transmisión de energía térmica por conducción, convección y radiación en la naturaleza y tecnología.", evaluated: false },
+                        { code: "OA 08", desc: "Investigar la radiación electromagnética y su espectro en aplicaciones tecnológicas cotidianas.", evaluated: false },
+                        { code: "OA 09", desc: "Describir el sistema reproductor humano y la regulación hormonal en el ciclo menstrual y fertilidad.", evaluated: false },
+                        { code: "OA 10", desc: "Analizar métodos de prevención de infecciones de transmisión sexual (ITS) y paternidad responsable.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Investigación Científica", desc: "Formular explicaciones basadas en evidencias empíricas y modelos geofísicos y termodinámicos.", developed: true },
+                        { name: "Evaluación de Evidencia", desc: "Contrastar información científica de fuentes confiables sobre cambio climático y desarrollo sustentable.", evaluated: false }
+                    ]
+                },
+                "Historia, Geografía y Cs. Sociales": {
+                    oa: [
+                        { code: "OA 01", desc: "Analizar, apoyándose en diversas fuentes, la centralidad del ser humano en el Humanismo y el Renacimiento.", evaluated: true },
+                        { code: "OA 02", desc: "Explicar el quiebre de la unidad religiosa en Europa: la Reforma protestante y la Contrarreforma católica.", evaluated: true },
+                        { code: "OA 03", desc: "Analizar la formación del Estado moderno y el surgimiento del absolutismo monárquico en Europa.", evaluated: true },
+                        { code: "OA 04", desc: "Caracterizar la Revolución Científica del siglo XVII y su impacto en la mentalidad moderna.", evaluated: true },
+                        { code: "OA 05", desc: "Analizar el pensamiento de la Ilustración y su crítica al Antiguo Régimen y la monarquía absoluta.", evaluated: false },
+                        { code: "OA 06", desc: "Explicar los antecedentes y desarrollo de las revoluciones liberales atlánticas (Revolución Francesa e Independencia de EE.UU.).", evaluated: false },
+                        { code: "OA 07", desc: "Analizar y evaluar el impacto de la conquista de América en la cultura europea y americana, considerando debates morales.", evaluated: false },
+                        { code: "OA 08", desc: "Analizar el rol de la ciudad en la administración del Imperio español, instituciones y monopolio comercial.", evaluated: false },
+                        { code: "OA 09", desc: "Reconocer los derechos ciudadanos fundamentales y los tratados internacionales de derechos humanos.", evaluated: false },
+                        { code: "OA 10", desc: "Explicar el funcionamiento de los mecanismos de participación ciudadana y control democrático en Chile.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Pensamiento Temporal", desc: "Interpretar periodizaciones históricas mediante líneas de tiempo, reconociendo duración, sucesión y simultaneidad.", developed: true },
+                        { name: "Análisis Crítico", desc: "Fundamentar opiniones en base a evidencia histórica, comparando críticamente distintos puntos de vista y multicausalidad.", developed: false }
+                    ]
+                },
+                "Inglés": {
+                    oa: [
+                        { code: "OA 01", desc: "Demostrar comprensión de textos orales y audiovisuales auténticos sobre temas cotidianos, escolares y globales.", evaluated: true },
+                        { code: "OA 02", desc: "Identificar ideas principales, detalles y puntos de vista en textos literarios y no literarios de mediana complejidad.", evaluated: true },
+                        { code: "OA 03", desc: "Participar en conversaciones y debates breves expresando opiniones fundamentadas, acuerdos y desacuerdos.", evaluated: true },
+                        { code: "OA 04", desc: "Escribir textos variados (cartas formales breves, narraciones, descripciones y ensayos cortos) usando conectores avanzados.", evaluated: false },
+                        { code: "OA 05", desc: "Demostrar dominio del vocabulario temático y estructuras gramaticales (tiempos pasados, presentes perfectos y modales).", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Comprensión Avanzada", desc: "Extraer información implícita y explícita de textos complejos en inglés.", developed: true },
+                        { name: "Producción Oral y Escrita", desc: "Argumentar y redactar textos coherentes en lengua inglesa.", developed: false }
+                    ]
+                },
+                "Tecnología": {
+                    oa: [
+                        { code: "OA 01", desc: "Identificar oportunidades de innovación tecnológica para resolver problemas comunitarios o ambientales.", evaluated: true },
+                        { code: "OA 02", desc: "Diseñar, planificar y construir prototipos tecnológicos utilizando herramientas manuales y digitales.", evaluated: true },
+                        { code: "OA 03", desc: "Evaluar el impacto de la tecnología en la sociedad actual y proponer un uso responsable y sustentable.", evaluated: false },
+                        { code: "OA 04", desc: "Gestionar información digital utilizando bases de datos, nubes y herramientas colaborativas en línea.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Resolución Tecnológica", desc: "Diseñar prototipos funcionales aplicando principios de ingeniería y diseño.", developed: true },
+                        { name: "Pensamiento Crítico Digital", desc: "Evaluar el impacto ético y ambiental de la tecnología.", developed: false }
+                    ]
+                },
+                "Música": {
+                    oa: [
+                        { code: "OA 01", desc: "Comunicar sensaciones e ideas al escuchar música de diversas épocas y culturas, integrando elementos expresivos.", evaluated: true },
+                        { code: "OA 02", desc: "Describir elementos del lenguaje musical (armonía, textura, forma) en obras escuchadas y ejecutadas.", evaluated: true },
+                        { code: "OA 03", desc: "Cantar y tocar repertorio complejo a varias voces con precisión rítmica, melódica y expresividad.", evaluated: false },
+                        { code: "OA 04", desc: "Improvisar y crear secuencias musicales y arreglos utilizando tecnologías de audio o instrumentos acústicos.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Audición Crítica", desc: "Reconocer elementos estilísticos y compositivos en variados géneros musicales.", developed: true },
+                        { name: "Interpretación Colectiva", desc: "Ejecutar arreglos musicales en grupo con rigor y sincronización.", developed: false }
+                    ]
+                },
+                "Educación Física y Salud": {
+                    oa: [
+                        { code: "OA 01", desc: "Dominar habilidades motrices específicas en al menos un deporte de colaboración/oposición y una disciplina gimnástica o danza.", evaluated: true },
+                        { code: "OA 02", desc: "Aplicar tácticas, sistemas de juego y reglamentos oficiales en la práctica de deportes colectivos.", evaluated: true },
+                        { code: "OA 03", desc: "Diseñar y aplicar un plan personal de entrenamiento para mejorar la resistencia cardiovascular, fuerza y flexibilidad.", evaluated: false },
+                        { code: "OA 04", desc: "Demostrar liderazgo, honestidad, juego limpio y respeto por la diversidad en la práctica deportiva.", evaluated: false }
+                    ],
+                    skills: [
+                        { name: "Desempeño Deportivo", desc: "Ejecutar gestos técnicos complejos en deportes y actividades rítmicas.", developed: true },
+                        { name: "Gestión de la Salud", desc: "Planificar cargas de ejercicio físico orientadas al bienestar y condición aeróbica.", developed: false }
+                    ]
+                }
+            }
+        };
+
+        let overviewChartInstance = null;
+
+        const app = {
+            init() {
+                this.updateStudentInfo();
+                this.renderSubjectData();
+                this.initChart();
+            },
+
+            updateStudentInfo() {
+                const name = document.getElementById('studentName').value;
+                const courseSelect = document.getElementById('studentCourse');
+                const course = courseSelect.value;
+                const subject = document.getElementById('subjectSelect').value;
+                const reason = document.getElementById('closureReason').value;
+                const dateVal = document.getElementById('reportDate').value;
+
+                document.getElementById('displayName').innerText = name || "Estudiante";
+                document.getElementById('displayCourse').innerText = course || "Curso";
+                document.getElementById('displaySubject').innerText = subject;
+                document.getElementById('displayReason').innerText = reason;
+
+                if (dateVal) {
+                    const dateObj = new Date(dateVal + 'T00:00:00');
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    document.getElementById('displayDate').innerText = dateObj.toLocaleDateString('es-ES', options);
+                }
+            },
+
+            changeCourse() {
+                this.updateStudentInfo();
+                this.renderSubjectData();
+                this.updateChartData();
+            },
+
+            changeSubject() {
+                this.renderSubjectData();
+                this.updateChartData();
+            },
+
+            getCurrentData() {
+                const course = document.getElementById('studentCourse').value;
+                const subject = document.getElementById('subjectSelect').value;
+                if (masterCurriculumData[course] && masterCurriculumData[course][subject]) {
+                    return masterCurriculumData[course][subject];
+                }
+                return {
+                    oa: [{ code: "OA 01", desc: "Objetivo de aprendizaje referencial del nivel.", evaluated: true }],
+                    skills: [{ name: "Pensamiento crítico", desc: "Habilidad general de análisis.", developed: true }]
+                };
+            },
+
+            toggleOA(index) {
+                const data = this.getCurrentData();
+                data.oa[index].evaluated = !data.oa[index].evaluated;
+                this.renderSubjectData();
+                this.updateChartData();
+            },
+
+            toggleSkill(index) {
+                const data = this.getCurrentData();
+                data.skills[index].developed = !data.skills[index].developed;
+                this.renderSubjectData();
+                this.updateChartData();
+            },
+
+            renderSubjectData() {
+                const data = this.getCurrentData();
+
+                // 1. Render OA Table
+                const oaBody = document.getElementById('oaTableBody');
+                oaBody.innerHTML = '';
+                let evaluatedOACount = 0;
+                data.oa.forEach((item, index) => {
+                    if (item.evaluated) evaluatedOACount++;
+                    oaBody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="p-3 text-center no-print">
+                                <input type="checkbox" ${item.evaluated ? 'checked' : ''} onchange="app.toggleOA(${index})" 
+                                       class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer">
+                            </td>
+                            <td class="p-3 font-semibold text-indigo-700">${item.code}</td>
+                            <td class="p-3 text-slate-700">${item.desc}</td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${item.evaluated ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                    <i class="fa-solid ${item.evaluated ? 'fa-circle-check' : 'fa-clock'} mr-1"></i> ${item.evaluated ? 'Logrado' : 'Pendiente'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                const oaPercentVisto = Math.round((evaluatedOACount / data.oa.length) * 100);
+                const oaPercentPendiente = 100 - oaPercentVisto;
+                document.getElementById('oaVistoBadge').innerText = `Logrado: ${oaPercentVisto}%`;
+                document.getElementById('oaPendienteBadge').innerText = `Pendiente: ${oaPercentPendiente}%`;
+
+                // 2. Render Skills Table
+                const skillsBody = document.getElementById('skillsTableBody');
+                skillsBody.innerHTML = '';
+                let developedSkillsCount = 0;
+                data.skills.forEach((item, index) => {
+                    if (item.developed) developedSkillsCount++;
+                    skillsBody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="p-3 text-center no-print">
+                                <input type="checkbox" ${item.developed ? 'checked' : ''} onchange="app.toggleSkill(${index})" 
+                                       class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer">
+                            </td>
+                            <td class="p-3 font-semibold text-slate-800">${item.name}</td>
+                            <td class="p-3 text-slate-600">${item.desc}</td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${item.developed ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                                    <i class="fa-solid ${item.developed ? 'fa-award' : 'fa-hourglass-half'} mr-1"></i> ${item.developed ? 'Desarrollada' : 'Pendiente'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                const skillsPercentVisto = Math.round((developedSkillsCount / data.skills.length) * 100);
+                const skillsPercentPendiente = 100 - skillsPercentVisto;
+                document.getElementById('skillsVistoBadge').innerText = `Desarrolladas: ${skillsPercentVisto}%`;
+                document.getElementById('skillsPendienteBadge').innerText = `Pendientes: ${skillsPercentPendiente}%`;
+
+                // Update Overall Summary Metrics
+                const overallViewed = Math.round((oaPercentVisto + skillsPercentVisto) / 2);
+                const overallPending = 100 - overallViewed;
+
+                document.getElementById('summaryViewedPercent').innerText = overallViewed + '%';
+                document.getElementById('summaryPendingPercent').innerText = overallPending + '%';
+
+                // 3. Render Pedagogical Recommendations for Pending Items
+                const recContainer = document.getElementById('pedagogicalRecommendations');
+                recContainer.innerHTML = '';
+
+                const pendingOAs = data.oa.filter(item => !item.evaluated);
+                const pendingSkills = data.skills.filter(item => !item.developed);
+
+                if (pendingOAs.length === 0 && pendingSkills.length === 0) {
+                    recContainer.innerHTML = `
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-900 text-xs flex items-center gap-3">
+                            <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                            <div>
+                                <p class="font-bold">¡Excelente noticia!</p>
+                                <p>El estudiante ha logrado cubrir y evaluar el 100% de los Objetivos de Aprendizaje oficiales de la plataforma Curriulum Nacional para este periodo.</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    let recHTML = '';
+                    
+                    if (pendingOAs.length > 0) {
+                        recHTML += `
+                            <div class="bg-white p-3.5 rounded-xl border border-amber-200 space-y-2">
+                                <p class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-book-open text-amber-600"></i> Refuerzo para Objetivos de Aprendizaje (OA) Pendientes:
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1 text-xs text-slate-700">
+                        `;
+                        pendingOAs.slice(0, 5).forEach(oa => {
+                            recHTML += `<li><strong class="text-indigo-700">${oa.code}:</strong> Se sugiere repasar conceptos clave mediante fichas de trabajo, recursos digitales de curriculumnacional.cl y 20 minutos de práctica diaria.</li>`;
+                        });
+                        if (pendingOAs.length > 5) {
+                            recHTML += `<li class="italic text-slate-500">...y ${pendingOAs.length - 5} objetivos adicionales por consolidar en el nuevo colegio.</li>`;
+                        }
+                        recHTML += `</ul></div>`;
+                    }
+
+                    if (pendingSkills.length > 0) {
+                        recHTML += `
+                            <div class="bg-white p-3.5 rounded-xl border border-amber-200 space-y-2">
+                                <p class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-puzzle-piece text-amber-600"></i> Desarrollo de Habilidades Disciplinares Pendientes:
+                                </p>
+                                <ul class="list-disc pl-5 space-y-1 text-xs text-slate-700">
+                        `;
+                        pendingSkills.forEach(skill => {
+                            recHTML += `<li><strong class="text-slate-800">${skill.name}:</strong> Propiciar actividades donde el estudiante formule hipótesis, investigue fuentes o resuelva problemas de razonamiento lógico.</li>`;
+                        });
+                        recHTML += `</ul></div>`;
+                    }
+
+                    recContainer.innerHTML = recHTML;
+                }
+            },
+
+            initChart() {
+                const ctx = document.getElementById('overviewChart').getContext('2d');
+                overviewChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['OA Logrados', 'Habilidades Desarrolladas', 'Pendiente Curricular'],
+                        datasets: [{
+                            data: [75, 75, 25],
+                            backgroundColor: ['#6366f1', '#10b981', '#f59e0b'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { boxWidth: 12, font: { size: 11 } }
+                            }
+                        }
+                    }
+                });
+                this.updateChartData();
+            },
+
+            updateChartData() {
+                const data = this.getCurrentData();
+
+                const oaVistos = Math.round(data.oa.filter(x => x.evaluated).length / data.oa.length * 100);
+                const habDev = Math.round(data.skills.filter(x => x.developed).length / data.skills.length * 100);
+                const pendiente = 100 - Math.round((oaVistos + habDev) / 2);
+
+                if (overviewChartInstance) {
+                    overviewChartInstance.data.datasets[0].data = [oaVistos, habDev, pendiente];
+                    overviewChartInstance.update();
+                }
+            },
+
+            resetData() {
+                document.getElementById('studentName').value = "Martín Alejandro Soto Rojas";
+                document.getElementById('studentCourse').value = "8° Básico";
+                document.getElementById('subjectSelect').value = "Matemáticas";
+                document.getElementById('closureReason').value = "Cambio de domicilio familiar a otra región";
+                document.getElementById('reportDate').value = "2026-10-30";
+                
+                for (let course in masterCurriculumData) {
+                    for (let subj in masterCurriculumData[course]) {
+                        masterCurriculumData[course][subj].oa.forEach((x, i) => x.evaluated = (i < 3));
+                        masterCurriculumData[course][subj].skills.forEach((x, i) => x.developed = (i === 0));
+                    }
+                }
+
+                this.updateStudentInfo();
+                this.renderSubjectData();
+                this.updateChartData();
+            },
+
+            downloadPDF() {
+                const element = document.getElementById('pdfContent');
+                const studentName = document.getElementById('studentName').value.trim() || 'Estudiante';
+                const filename = `Informe_Cierre_Anticipado_${studentName.replace(/\s+/g, '_')}.pdf`;
+                
+                // Add class to temporarily remove scroll constraints so all OA rows are rendered in the PDF
+                element.classList.add('pdf-exporting');
+
+                const opt = {
+                    margin:       10,
+                    filename:     filename,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(element).set(opt).save().then(() => {
+                    // Remove the temporary class after PDF generation completes
+                    element.classList.remove('pdf-exporting');
+                }).catch(err => {
+                    console.error('PDF generation error:', err);
+                    element.classList.remove('pdf-exporting');
+                });
+            }
+        };
+
+        window.onload = function() {
+            app.init();
+        };
+    </script>
+</body>
+</html>
